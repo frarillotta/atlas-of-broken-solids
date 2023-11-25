@@ -32,7 +32,7 @@ export const Raymarching: React.FC<RaymarchingProps> = ({
     const [dpr, setDpr] = useState(2)
 
     return <Canvas dpr={dpr}>
-        <PerformanceMonitor bounds={() => ([10, 60])} onIncline={() => setDpr(2)} onDecline={() => setDpr(1)} />
+        <PerformanceMonitor bounds={() => ([20, 60])} onIncline={() => setDpr(2)} onDecline={() => setDpr(1)} />
         <EffectComposer>
             <Bloom
                 mipmapBlur
