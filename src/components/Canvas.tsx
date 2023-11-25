@@ -2,7 +2,7 @@
 
 import { forwardRef, Suspense, useImperativeHandle, useRef } from 'react'
 import { PerspectiveCamera } from '@react-three/drei'
-import { Canvas as R3fCanvas, useThree } from '@react-three/fiber'
+import { Canvas as R3fCanvas } from '@react-three/fiber'
 import { ACESFilmicToneMapping } from 'three'
 
 
@@ -16,22 +16,22 @@ export const Common = ({ color }: { color?: string }) => (
     </Suspense>
 )
 
-const Canvas = forwardRef<unknown, { children: React.ReactNode, className?: string }>(({ className = '', children, ...props }, ref) => {
+const Canvas = forwardRef<unknown, { children: React.ReactNode, className?: string, dpr: number }>(({ className = '', children, dpr }, ref) => {
     const localRef = useRef<HTMLDivElement>(null)
     useImperativeHandle(ref, () => localRef.current)
 
     return (
         <>
-            <div ref={localRef} {...props} />
+            <div ref={localRef} />
             <R3fCanvas
                 gl={{
                     toneMapping: ACESFilmicToneMapping
                 }}
                 className={className}
-                dpr={window.innerWidth > 600 ? Math.max(window.devicePixelRatio, 2) : 1}
-                // shadows="basic"
-                {...props}
-            >{children}</R3fCanvas>
+                dpr={dpr}
+            >
+                {children}
+            </R3fCanvas>
         </>
     )
 })

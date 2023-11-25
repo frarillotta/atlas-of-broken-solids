@@ -29,7 +29,8 @@ const ShaderBaseComponent: React.FC<Omit<ShaderBaseProps, 'texture'> & { texture
     texture,
     noiseIntensity,
     primarySdf,
-    secondarySdf
+    secondarySdf,
+    dpr = 1
 }) => {
     const viewport = useThree(state => state.viewport);
     const uniforms = useMemo(() => ({
@@ -40,8 +41,6 @@ const ShaderBaseComponent: React.FC<Omit<ShaderBaseProps, 'texture'> & { texture
         u_secondarySDF: { value: 0 },
         u_noiseIntensity: { value: 0 },
     }), []);
-
-    const dpr = viewport.width > 600 ? Math.max(viewport.dpr, 2) : 1;
 
     const width = (Math.trunc(viewport.width * 10) / 10) * dpr;
     const height = (Math.trunc(viewport.height * 10) / 10) * dpr;
@@ -86,13 +85,15 @@ export const ShaderBase: React.FC<Required<ShaderBaseProps>> = ({
     texture,
     noiseIntensity,
     primarySdf,
-    secondarySdf
+    secondarySdf,
+    dpr
 }) => {
 
     const tex = useTexture(texture);
 
     return (
         <ShaderBaseComponent
+            dpr={dpr}
             noiseIntensity={noiseIntensity}
             primarySdf={primarySdf}
             secondarySdf={secondarySdf}
@@ -106,7 +107,8 @@ export const Scene: React.FC<RaymarchingProps> = ({
     matcap,
     noiseIntensity,
     primarySdf,
-    secondarySdf
+    secondarySdf,
+    dpr = 1
 }) => {
     const matcapTex = `/matcaps/${matcap.type}/${matcap.matcap}.png`;
 
@@ -135,6 +137,7 @@ export const Scene: React.FC<RaymarchingProps> = ({
             <ToneMapping mode={ACESFilmicToneMapping} />
         </EffectComposer>
         <ShaderBase
+            dpr={dpr}
             fragmentShader={raymarchingShader}
             texture={matcapTex}
             noiseIntensity={noiseIntensity}
