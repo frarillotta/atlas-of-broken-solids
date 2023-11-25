@@ -31,26 +31,24 @@ export const Raymarching: React.FC<RaymarchingProps> = ({
 }) => {
     const [dpr, setDpr] = useState(2)
 
-    return <>
-        <Canvas dpr={dpr}>
-            <PerformanceMonitor bounds={() => ([20, 60])} onIncline={() => setDpr(2)} onDecline={() => setDpr(1)} />
-            {dpr >= 1 && <EffectComposer>
-                <Bloom
-                    mipmapBlur
-                    intensity={1.85}
-                    radius={0.5}
-                    luminanceThreshold={0.6}
-                    luminanceSmoothing={0.5}
-                />
-                <ToneMapping mode={ACESFilmicToneMapping} />
-            </EffectComposer>}
-            <Scene
-                dpr={dpr}
-                matcap={matcap}
-                noiseIntensity={noiseIntensity}
-                primarySdf={primarySdf}
-                secondarySdf={secondarySdf}
+    return <Canvas dpr={dpr}>
+        <PerformanceMonitor bounds={() => ([20, 60])} onIncline={() => setDpr(2)} onDecline={() => setDpr(1)} />
+        {dpr > 1 && <EffectComposer>
+            <Bloom
+                mipmapBlur
+                intensity={1.85}
+                radius={0.5}
+                luminanceThreshold={0.6}
+                luminanceSmoothing={0.5}
             />
-        </Canvas>
-    </>
+            <ToneMapping mode={ACESFilmicToneMapping} />
+        </EffectComposer>}
+        <Scene
+            dpr={dpr}
+            matcap={matcap}
+            noiseIntensity={noiseIntensity}
+            primarySdf={primarySdf}
+            secondarySdf={secondarySdf}
+        />
+    </Canvas>
 }
