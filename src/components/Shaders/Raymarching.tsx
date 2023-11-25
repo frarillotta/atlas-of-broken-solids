@@ -1,7 +1,6 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { isSafari } from '~/utils';
  
 const Canvas = dynamic(() => import('~/components/Canvas').then((mod) => mod.Canvas), {
     ssr: false

@@ -41,7 +41,8 @@ const ShaderBaseComponent: React.FC<Omit<ShaderBaseProps, 'texture'> & { texture
         u_noiseIntensity: { value: 0 },
     }), []);
 
-    const dpr = Math.max(viewport.dpr, 2);
+    const dpr = viewport.width > 600 ? Math.max(viewport.dpr, 2) : 1;
+
     const width = (Math.trunc(viewport.width * 10) / 10) * dpr;
     const height = (Math.trunc(viewport.height * 10) / 10) * dpr;
     useEffect(() => {
