@@ -190,13 +190,9 @@ export const raymarchingShader =  /*glsl*/`
     
         float yrot = 0.5;
         float zrot = u_time*.6;
-        vec3 color = vec3(0.);
 
-        float dist = length(gl_FragCoord.xy/u_resolution.xy - vec2(0.5));
         vec3 bg = vec3(0.);
-
-        // float dist = length(st - vec2(0.5));
-        // vec3 bg = mix(vec3(0.), vec3(.3), dist);
+        vec3 color = bg;
 
         cam = erot(cam, vec3(0,1,0), yrot);
         init = erot(init, vec3(0,1,0), yrot);
@@ -205,16 +201,17 @@ export const raymarchingShader =  /*glsl*/`
         
         vec3 p = init;
         bool hit = false;
-        for (int i = 0; i < 312 && !hit; i++) {
+        for (int i = 0; i < 128 && !hit; i++) {
             float dist = sdf(p);
-            hit = dist*dist < 1e-6;
-            p+=dist*cam*.6;
-            if (distance(p,init)>10.) break;
+            hit = dist < 0.002;
+            p+=dist*cam*.4;
+            if (hit == true || distance(p,init)>5.) break;
         }
-        vec3 normal = norm(p);
-        float diff = dot(vec3(1.), normal);
-        vec2 matcapUV = getmatcap(cam, normal);
-        color = hit ? texture2D(matcap, matcapUV).rgb : bg;
+        if (hit == true) {
+            vec3 normal = norm(p);
+            vec2 matcapUV = getmatcap(cam, normal);
+            color = texture2D(matcap, matcapUV).rgb;
+        }
 
         gl_FragColor = vec4(color,1.0);
     }
