@@ -1,36 +1,22 @@
-import { Object3DNode, extend, useFrame, useThree } from "@react-three/fiber";
-import { Effects, OrbitControls, OrthographicCamera, useTexture, Stats } from "@react-three/drei";
+import { useFrame, useThree } from "@react-three/fiber";
+import { OrthographicCamera, useTexture } from "@react-three/drei";
 import { } from 'framer-motion'
 import {
     Texture,
-    Vector2,
-    ACESFilmicToneMapping
-} from "three";
+    Vector2} from "three";
 import { useEffect, useMemo } from "react";
-import { Bloom, EffectComposer, ToneMapping } from "@react-three/postprocessing";
-import { UnrealBloomPass, OutputPass } from "three/examples/jsm/Addons.js";
 import { raymarchingShader } from "./raymarchingShader";
 import { RaymarchingProps } from "./Raymarching";
 
 type ShaderBaseProps = { fragmentShader: string, texture?: string } & Omit<RaymarchingProps, 'matcap'>
 
-extend({ UnrealBloomPass, OutputPass })
-
-// Add types to ThreeElements elements so primitives pick up on it
-declare module '@react-three/fiber' {
-    interface ThreeElements {
-        unrealBloomPass: Object3DNode<UnrealBloomPass, typeof UnrealBloomPass>
-        outputPass: Object3DNode<OutputPass, typeof OutputPass>
-    }
-}
-
-const ShaderBaseComponent: React.FC<Omit<ShaderBaseProps, 'texture'> & { texture?: Texture }> = ({
+const ShaderBaseComponent: React.FC<Omit<ShaderBaseProps, 'texture'> & { texture?: Texture, dpr: number }> = ({
     fragmentShader,
     texture,
     noiseIntensity,
     primarySdf,
     secondarySdf,
-    dpr = 1
+    dpr
 }) => {
     const viewport = useThree(state => state.viewport);
     const uniforms = useMemo(() => ({
@@ -80,7 +66,7 @@ const ShaderBaseComponent: React.FC<Omit<ShaderBaseProps, 'texture'> & { texture
 };
 
 
-export const ShaderBase: React.FC<Required<ShaderBaseProps>> = ({
+export const ShaderBase: React.FC<Required<ShaderBaseProps> & {dpr: number}> = ({
     fragmentShader,
     texture,
     noiseIntensity,
@@ -103,12 +89,12 @@ export const ShaderBase: React.FC<Required<ShaderBaseProps>> = ({
     );
 };
 
-export const Scene: React.FC<RaymarchingProps> = ({
+export const Scene: React.FC<RaymarchingProps & {dpr: number}> = ({
     matcap,
     noiseIntensity,
     primarySdf,
     secondarySdf,
-    dpr = 1
+    dpr
 }) => {
     const matcapTex = `/matcaps/${matcap.type}/${matcap.matcap}.png`;
 
@@ -126,16 +112,6 @@ export const Scene: React.FC<RaymarchingProps> = ({
                 1, // far
             ]}
         />
-        <EffectComposer>
-            <Bloom
-                mipmapBlur
-                intensity={1.85}
-                radius={0.5}
-                luminanceThreshold={0.6}
-                luminanceSmoothing={0.5}
-            />
-            <ToneMapping mode={ACESFilmicToneMapping} />
-        </EffectComposer>
         <ShaderBase
             dpr={dpr}
             fragmentShader={raymarchingShader}

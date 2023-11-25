@@ -1,8 +1,10 @@
 'use client'
 
 import { PerformanceMonitor } from '@react-three/drei'
+import { EffectComposer, Bloom, ToneMapping } from '@react-three/postprocessing'
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
+import { ACESFilmicToneMapping } from 'three'
 
 const Canvas = dynamic(() => import('~/components/Canvas').then((mod) => mod.Canvas), {
     ssr: false
@@ -20,7 +22,6 @@ export type RaymarchingProps = {
     primarySdf: number,
     secondarySdf: number,
     noiseIntensity: number,
-    dpr?: number
 }
 export const Raymarching: React.FC<RaymarchingProps> = ({
     matcap,
@@ -28,11 +29,21 @@ export const Raymarching: React.FC<RaymarchingProps> = ({
     primarySdf,
     secondarySdf
 }) => {
-    const [dpr, setDpr] = useState(Math.max(window.devicePixelRatio, 2))
+    const [dpr, setDpr] = useState(2)
 
     return <>
         <Canvas dpr={dpr}>
             <PerformanceMonitor bounds={() => ([20, 60])} onIncline={() => setDpr(2)} onDecline={() => setDpr(1)} />
+            {dpr >= 1 && <EffectComposer>
+                <Bloom
+                    mipmapBlur
+                    intensity={1.85}
+                    radius={0.5}
+                    luminanceThreshold={0.6}
+                    luminanceSmoothing={0.5}
+                />
+                <ToneMapping mode={ACESFilmicToneMapping} />
+            </EffectComposer>}
             <Scene
                 dpr={dpr}
                 matcap={matcap}
