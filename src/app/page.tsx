@@ -1,94 +1,88 @@
-import Image from 'next/image'
+'use client';
+
 import styles from './page.module.css'
+import dynamic from 'next/dynamic'
+import { sdfDefinitionsMap } from '~/shaders';
+import { ReadonlyURLSearchParams, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+
+const Raymarching = dynamic(() => import('~/components/Shaders/Raymarching').then((mod) => mod.Raymarching), {
+  ssr: false
+})
+
+const matcaps = {
+  Diamond: {
+    length: 37
+  },
+  Iridescent: {
+    length: 41
+  }
+}
+const getRandomMatcap = () => {
+  const matcapKeys = Object.keys(matcaps)
+  const type = matcapKeys[Math.floor(Math.random() * matcapKeys.length)] as keyof typeof matcaps;
+  const matcap = Math.ceil(Math.random() * matcaps[type].length);
+  return {
+    type,
+    matcap
+  }
+}
+const readMatcapFromQuery = (matcapString: string | null | undefined): {
+  type: keyof typeof matcaps,
+  matcap: number,
+} | null => {
+  if (!matcapString) return null;
+  const splitString = matcapString.split('-');
+  return {
+    type: splitString[0] as keyof typeof matcaps,
+    matcap: parseInt(splitString[1])
+  }
+}
+
+
+const generateShaderParams = (searchParams?: ReadonlyURLSearchParams) => {
+  const primarySdf = searchParams?.get('primarySdf')
+    ? Number(searchParams.get('primarySdf'))
+    : Math.floor(Math.random() * Object.values(sdfDefinitionsMap).length);
+
+  const secondarySdf = searchParams?.get('secondarySdf')
+    ? Number(searchParams.get('secondarySdf'))
+    : Math.floor(Math.random() * Object.values(sdfDefinitionsMap).length);
+
+  const matcap = readMatcapFromQuery(searchParams?.get('matcap')) || getRandomMatcap();
+  const noiseIntensity = searchParams?.get('seed')
+    ? Number(searchParams.get('seed'))
+    : 1 + (Math.random() * 2.);
+
+  return {
+    matcap,
+    primarySdf,
+    secondarySdf,
+    noiseIntensity
+  }
+}
 
 export default function Home() {
+  const searchParams = useSearchParams();
+  const [shaderParams, setShaderParams] = useState(generateShaderParams(searchParams));
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+      <h1 className={styles.title}>
+        Atlas of<br />broken<br /> solids
+      </h1>
+      <button onClick={() => {
+        const currentPath = window.location.origin
+        navigator.clipboard.writeText(`${currentPath}/?primarySdf=${shaderParams.primarySdf}&secondarySdf=${shaderParams.secondarySdf}&seed=${shaderParams.noiseIntensity}&matcap=${shaderParams.matcap.type}-${shaderParams.matcap.matcap}`)
+      }}>save</button>
+      <button onClick={() => {
+        // remove the query string from the browser's history
+        window.history.replaceState({ ...window.history.state, as: '/', url: '/' }, '', '/');
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+        setShaderParams(generateShaderParams())
+      }}>generate a new solid</button>
+      <div style={{ minHeight: '380px', minWidth: '380px', height: '50vh', width: '50vw' }}>
+        <Raymarching {...shaderParams} />
       </div>
     </main>
   )
