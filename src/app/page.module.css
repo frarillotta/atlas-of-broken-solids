@@ -13,5 +13,6 @@
   font-size: calc(3rem + 5vw);
   font-weight: 100;
   z-index: 2;
+  color: white;
   /* letter-spacing: 0.1cap; */
 }
