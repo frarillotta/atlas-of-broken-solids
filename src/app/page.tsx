@@ -81,7 +81,7 @@ export default function Home() {
 
         setShaderParams(generateShaderParams())
       }}>generate a new solid</button>
-      <div style={{ minHeight: '420px', minWidth: '420px', height: '50vh', width: '50vw' }}>
+      <div style={{ minHeight: '420px', minWidth: 'min(420px, 100vw)', height: '50vh', width: '50vw' }}>
         <Raymarching {...shaderParams} />
       </div>
     </main>
