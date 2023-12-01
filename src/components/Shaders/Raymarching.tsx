@@ -32,7 +32,7 @@ export const Raymarching: React.FC<RaymarchingProps> = ({
     const [dpr, setDpr] = useState(window.devicePixelRatio)
 
     return <Canvas dpr={dpr}>
-        <PerformanceMonitor iterations={3} bounds={() => ([20, 60])} onIncline={() => setDpr(2)} onDecline={() => setDpr(1)} />
+        <PerformanceMonitor ms={500} bounds={() => ([20, 60])} onIncline={() => setDpr(2)} onDecline={() => setDpr(1)} />
         {dpr > 1 && <EffectComposer >
             <Bloom
                 mipmapBlur
