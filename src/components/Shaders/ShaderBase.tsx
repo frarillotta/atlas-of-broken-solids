@@ -26,6 +26,7 @@ const ShaderBaseComponent: React.FC<Omit<ShaderBaseProps, 'texture'> & { texture
         u_primarySDF: { value: 0 },
         u_secondarySDF: { value: 0 },
         u_noiseIntensity: { value: 0 },
+        u_dpr: {value: dpr},
     }), []);
 
     const width = (Math.trunc(viewport.width * 10) / 10) * dpr;
@@ -36,6 +37,7 @@ const ShaderBaseComponent: React.FC<Omit<ShaderBaseProps, 'texture'> & { texture
         uniforms.u_secondarySDF.value = secondarySdf;
         uniforms.u_noiseIntensity.value = noiseIntensity;
         uniforms.matcap.value = texture;
+        uniforms.u_dpr.value = dpr;
     }, [
         width,
         height,
@@ -43,11 +45,13 @@ const ShaderBaseComponent: React.FC<Omit<ShaderBaseProps, 'texture'> & { texture
         uniforms.u_primarySDF,
         uniforms.u_secondarySDF,
         uniforms.u_noiseIntensity,
+        uniforms.u_dpr,
         uniforms.matcap,
         primarySdf,
         secondarySdf,
         noiseIntensity,
-        texture
+        texture,
+        dpr
     ])
     useFrame(({ clock }) => {
         uniforms.u_time.value = clock.elapsedTime;

@@ -29,6 +29,7 @@ export const raymarchingShader =  /*glsl*/`
     uniform float u_primarySDF;
     uniform float u_secondarySDF;
     uniform float u_noiseIntensity;
+    uniform float u_dpr;
     float PI = 3.14155925;
     ${snoise3d}
     ${sdfDefinitions}
@@ -247,16 +248,19 @@ export const raymarchingShader =  /*glsl*/`
         if (hit == true) {
             vec3 normal = norm(p);
             
-            // lighting
-            float occ = calcAO( cam, normal );
-            vec3  lig = normalize( vec3(-0.5, 0.4, -0.6) );
-            float shadow = calcSoftshadow( cam, lig, 0.02, 2.5 );
             vec2 matcapUV = getmatcap(cam, normal);
             color = texture2D(matcap, matcapUV).rgb;
-            // float dif = clamp( dot( normal, lig ), 0., 1.0 );
             float dif = 1.;
-            dif *= occ;
-            dif *= shadow;
+            if (u_dpr > 1.) {
+                // lighting
+                float occ = calcAO( cam, normal );
+                vec3  lig = normalize( vec3(-0.5, 0.4, -0.6) );
+                float shadow = calcSoftshadow( cam, lig, 0.02, 2.5 );
+                dif *= occ;
+                dif *= shadow;
+            }
+
+            // float dif = clamp( dot( normal, lig ), 0., 1.0 );
 
             // color *= occ;
             color = color*dif*vec3(1.00,1.00,1.00);
