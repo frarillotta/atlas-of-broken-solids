@@ -1,7 +1,7 @@
 'use client'
 
 import { forwardRef, Suspense, useImperativeHandle, useRef } from 'react'
-import { PerspectiveCamera } from '@react-three/drei'
+import { PerspectiveCamera, Stats } from '@react-three/drei'
 import { Canvas as R3fCanvas } from '@react-three/fiber'
 import { ACESFilmicToneMapping } from 'three'
 
@@ -30,6 +30,7 @@ const Canvas = forwardRef<unknown, { children: React.ReactNode, className?: stri
                 className={className}
                 dpr={dpr}
             >
+                <Stats />
                 {children}
             </R3fCanvas>
         </>

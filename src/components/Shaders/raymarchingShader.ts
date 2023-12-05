@@ -83,7 +83,7 @@ export const raymarchingShader =  /*glsl*/`
         }
 
         if (u_primarySDF == 6.) {
-            primarySdf = sdCapsule(distortedP, vec3(.4, .01, .3), vec3(-.1, .0, -.3), .25);
+            primarySdf = sdCapsule(distortedP, vec3(.3, .01, .2), vec3(-.1, .0, -.3), .25);
         }
 
         if (u_primarySDF == 7.) {
@@ -182,6 +182,43 @@ export const raymarchingShader =  /*glsl*/`
     vec3 erot(vec3 p, vec3 ax, float ro) {
         return mix(dot(p,ax)*ax,p,cos(ro))+sin(ro)*cross(ax,p);
     }
+
+    // https://iquilezles.org/articles/nvscene2008/rwwtt.pdf
+    float calcAO( in vec3 pos, in vec3 nor )
+    {
+        float occ = 0.0;
+        float sca = 1.0;
+        for( int i=0; i<5; i++ )
+        {
+            float h = 0.01 + 0.12*float(i)/4.0;
+            float d = sdf( pos + h*nor );
+            occ += (h-d)*sca;
+            sca *= 0.95;
+            if( occ>0.35 ) break;
+        }
+        return clamp( 1.0 - 3.0*occ, 0.0, 1.0 ) * (0.5+0.5*nor.y);
+    }
+
+
+    // https://iquilezles.org/articles/rmshadows
+    float calcSoftshadow( in vec3 ro, in vec3 rd, in float mint, in float tmax ) {
+        // bounding volume
+        float tp = (0.8-ro.y)/rd.y; if( tp>0.0 ) tmax = min( tmax, tp );
+
+        float res = 1.0;
+        float t = mint;
+        for( int i=0; i<24; i++ ) {
+            float h = sdf( ro + rd*t );
+            float s = clamp(8.0*h/t,0.0,1.0);
+            res = min( res, s );
+            t += clamp( h, 0.01, 0.2 );
+            if( res<0.004 || t>tmax ) break;
+        }
+        res = clamp( res, 0.0, 1.0 );
+        return res*res*(3.0-2.0*res);
+    }
+
+
     void main() {
         vec2 uv = (gl_FragCoord.xy-0.5*u_resolution.xy)/u_resolution.y;
 
@@ -209,8 +246,20 @@ export const raymarchingShader =  /*glsl*/`
         }
         if (hit == true) {
             vec3 normal = norm(p);
+            
+            // lighting
+            float occ = calcAO( cam, normal );
+            vec3  lig = normalize( vec3(-0.5, 0.4, -0.6) );
+            float shadow = calcSoftshadow( cam, lig, 0.02, 2.5 );
             vec2 matcapUV = getmatcap(cam, normal);
             color = texture2D(matcap, matcapUV).rgb;
+            // float dif = clamp( dot( normal, lig ), 0., 1.0 );
+            float dif = 1.;
+            dif *= occ;
+            dif *= shadow;
+
+            // color *= occ;
+            color = color*dif*vec3(1.00,1.00,1.00);
         }
 
         gl_FragColor = vec4(color,1.0);

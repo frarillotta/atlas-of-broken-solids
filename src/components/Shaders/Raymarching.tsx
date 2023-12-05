@@ -38,7 +38,7 @@ export const Raymarching: React.FC<RaymarchingProps> = ({
                 mipmapBlur
                 intensity={1.85}
                 radius={0.5}
-                luminanceThreshold={0.6}
+                luminanceThreshold={0.1}
                 luminanceSmoothing={0.5}
             />
             <ToneMapping mode={ACESFilmicToneMapping} />
