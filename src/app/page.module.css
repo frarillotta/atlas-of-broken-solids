@@ -19,8 +19,8 @@
 
 .buttonsWrapper {
   position: absolute;
-  top: 24px;
-  right: 24px;
+  top: 32px;
+  right: 32px;
   display: flex;
   flex-direction: column;
   gap: 12px;
