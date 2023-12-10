@@ -16,3 +16,18 @@
   color: white;
   /* letter-spacing: 0.1cap; */
 }
+
+.buttonsWrapper {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}

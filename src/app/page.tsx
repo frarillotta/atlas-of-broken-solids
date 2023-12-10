@@ -5,6 +5,8 @@ import dynamic from 'next/dynamic'
 import { sdfDefinitionsMap } from '~/shaders';
 import { ReadonlyURLSearchParams, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { Save } from '~/components/Icons/Save';
+import { Refresh } from '~/components/Icons/Refresh';
 
 const Raymarching = dynamic(() => import('~/components/Shaders/Raymarching').then((mod) => mod.Raymarching), {
   ssr: false
@@ -71,16 +73,22 @@ export default function Home() {
       <h1 className={styles.title}>
         Atlas of<br />broken<br /> solids
       </h1>
-      <button onClick={() => {
-        const currentPath = window.location.origin
-        navigator.clipboard.writeText(`${currentPath}/?primarySdf=${shaderParams.primarySdf}&secondarySdf=${shaderParams.secondarySdf}&seed=${shaderParams.noiseIntensity}&matcap=${shaderParams.matcap.type}-${shaderParams.matcap.matcap}`)
-      }}>save</button>
-      <button onClick={() => {
-        // remove the query string from the browser's history
-        window.history.replaceState({ ...window.history.state, as: '/', url: '/' }, '', '/');
+      <div className={styles.buttonsWrapper}>
+        <button className={styles.button} onClick={() => {
+          const currentPath = window.location.origin
+          navigator.clipboard.writeText(`${currentPath}/?primarySdf=${shaderParams.primarySdf}&secondarySdf=${shaderParams.secondarySdf}&seed=${shaderParams.noiseIntensity}&matcap=${shaderParams.matcap.type}-${shaderParams.matcap.matcap}`)
+        }}>
+          <Save />
+        </button>
+        <button className={styles.button} onClick={() => {
+          // remove the query string from the browser's history
+          window.history.replaceState({ ...window.history.state, as: '/', url: '/' }, '', '/');
 
-        setShaderParams(generateShaderParams())
-      }}>generate a new solid</button>
+          setShaderParams(generateShaderParams())
+        }}>
+          <Refresh />
+        </button>
+      </div>
       <div style={{ minHeight: '420px', minWidth: 'min(420px, 100vw)', height: '50vh', width: '50vw' }}>
         <Raymarching {...shaderParams} />
       </div>
